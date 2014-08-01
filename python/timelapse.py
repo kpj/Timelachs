@@ -61,6 +61,9 @@ class Client(asyncore.dispatcher):
                     self.bytes2image(self.data)
                     self.reset()
 
+    def writable(self):
+        return len(self.data) > 0
+
     def bytes2image(self, byts):
         name = 'current.jpg'
         with open(name, 'wb') as fd:
