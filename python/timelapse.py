@@ -49,8 +49,11 @@ class Client(asyncore.dispatcher):
     def handle_read(self):
         if self.init:
             res = self.recv(self.init_len)
-            self.size = struct.unpack('!i', res)[0]
-            self.init = False
+            if len(res) == 4:
+                self.size = struct.unpack('!i', res)[0]
+                self.init = False
+            else:
+                print('Discarding %i byte%s' % (len(res), '' if len(res) == 1 else 's'))
         else:
             chunk = self.recv(self.recv_len)
 
