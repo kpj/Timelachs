@@ -2,7 +2,9 @@
 <resources>
 
     <string name="app_name">Timelachs</string>
-    <string name="hello_world">Hello world!</string>
     <string name="action_settings">Settings</string>
+    <string name="instructions">
+        1) Start server\n2) Connect\n3) Start\n4) Wait\n5) Stop\n6) Disconnect\n
+    </string>
 
 </resources>
