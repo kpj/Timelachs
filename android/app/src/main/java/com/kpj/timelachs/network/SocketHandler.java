@@ -59,7 +59,7 @@ public class SocketHandler {
                 sock = new Socket(ip, port);
 
                 out = sock.getOutputStream();
-                Log.e("FOO", "Socket connected");
+                //Log.e("FOO", "Socket connected");
                 //Toast.makeText(ctx, "Socket connection succeeded", Toast.LENGTH_SHORT).show();
             } catch (IOException e) {
                 Log.e("FOO", "Socket connection failed");

@@ -1,5 +1,6 @@
 package com.kpj.timelachs.camera;
 
+import android.app.Activity;
 import android.content.Context;
 import android.hardware.Camera;
 import android.util.Log;
@@ -22,7 +23,7 @@ public class CameraHandler {
         mPreview = new Preview(c);
         sock = null;
 
-        if(safeCameraOpen(0)) {
+        if(safeCameraOpen(Camera.CameraInfo.CAMERA_FACING_BACK)) {
             mPreview.setCamera(mCamera);
         }
     }
@@ -64,7 +65,7 @@ public class CameraHandler {
             if(bytes == null) {
                 Log.e("FOO", "Something went wrong");
             } else {
-                Log.e("FOO", "Took image: " + bytes.length);
+                Toast.makeText(ctx, "Took image (" + bytes.length + ")", Toast.LENGTH_SHORT).show();
 
                 if(sock != null) {
                     sock.sendBytes(bytes);

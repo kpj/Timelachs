@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.hardware.Camera;
 import android.util.Log;
+import android.view.Surface;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.ViewGroup;
@@ -14,6 +15,8 @@ import java.io.IOException;
 import java.util.List;
 
 class Preview extends ViewGroup implements SurfaceHolder.Callback {
+    Context ctx;
+
     Camera cam;
 
     SurfaceView mSurfaceView;
@@ -22,10 +25,12 @@ class Preview extends ViewGroup implements SurfaceHolder.Callback {
     Camera.Size pSize;
     Camera.Size iSize;
 
-    Preview(Context ctx) {
-        super(ctx);
+    Preview(Context c) {
+        super(c);
 
-        mSurfaceView = (SurfaceView) ((Activity) ctx).findViewById(R.id.cam_preview);
+        ctx = c;
+
+        mSurfaceView = (SurfaceView) ((Activity) c).findViewById(R.id.cam_preview);
 
         mHolder = mSurfaceView.getHolder();
         mHolder.addCallback(this);
@@ -37,7 +42,9 @@ class Preview extends ViewGroup implements SurfaceHolder.Callback {
     }
 
     public void setCamera(Camera camera) {
-        if (cam == camera) { return; }
+        if (cam == camera) {
+            return;
+        }
 
         stopPreviewAndFreeCamera();
 
@@ -67,7 +74,7 @@ class Preview extends ViewGroup implements SurfaceHolder.Callback {
 
     private Camera.Size getOptimalPreviewSize(List<Camera.Size> sizes, int w, int h) {
         final double ASPECT_TOLERANCE = 0.1;
-        double targetRatio=(double) h / w;
+        double targetRatio = (double) h / w;
 
         if (sizes == null) return null;
 
@@ -99,11 +106,42 @@ class Preview extends ViewGroup implements SurfaceHolder.Callback {
         return optimalSize;
     }
 
+    private Camera.Parameters handleOrientation(Camera.Parameters params) {
+        Camera.CameraInfo info = new android.hardware.Camera.CameraInfo();
+        Camera.getCameraInfo(0, info);
+
+        int rotation = ((Activity) ctx).getWindowManager().getDefaultDisplay().getRotation();
+        int degrees = 0;
+        switch (rotation) {
+            case Surface.ROTATION_0:
+                degrees = 0;
+                break;
+            case Surface.ROTATION_90:
+                degrees = 90;
+                break;
+            case Surface.ROTATION_180:
+                degrees = 180;
+                break;
+            case Surface.ROTATION_270:
+                degrees = 270;
+                break;
+        }
+
+        int result = (info.orientation - degrees + 360) % 360;
+
+        Log.e("FOO", "Setting rotation to " + result + " - " + degrees +  " - " + rotation);
+
+        cam.setDisplayOrientation(result);
+        params.setRotation(result);
+
+        return params;
+    }
+
     private void initPreview(int w, int h) {
         Camera.Parameters params = cam.getParameters();
 
         pSize = params.getSupportedPreviewSizes().get(0);//getOptimalPreviewSize(params.getSupportedPreviewSizes(), w, h);
-        Log.e("FOO", pSize.width + "x" + pSize.height);
+        //Log.e("FOO", pSize.width + "x" + pSize.height);
         iSize = params.getSupportedPictureSizes().get(0);
 
         params.setPreviewSize(pSize.width, pSize.height);
@@ -113,10 +151,7 @@ class Preview extends ViewGroup implements SurfaceHolder.Callback {
 
         params.setFocusMode(Camera.Parameters.FOCUS_MODE_CONTINUOUS_PICTURE);
 
-        Camera.CameraInfo info = new android.hardware.Camera.CameraInfo();
-        Camera.getCameraInfo(0, info);
-        cam.setDisplayOrientation((info.orientation + 360) % 360);
-        params.setRotation(180);
+        //params = handleOrientation(params);
 
         cam.setParameters(params);
 

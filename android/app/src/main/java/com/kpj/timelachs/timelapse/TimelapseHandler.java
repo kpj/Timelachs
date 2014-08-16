@@ -1,7 +1,6 @@
 package com.kpj.timelachs.timelapse;
 
 import android.os.Handler;
-import android.util.Log;
 
 import com.kpj.timelachs.camera.CameraHandler;
 
